@@ -1,5 +1,13 @@
 @use "bootstrap/scss/bootstrap" as * with (
-  $info: #5c728f
+  $primary: #0047BB, // Text colors for nav banner
+  $secondary: #EB7722, // box shadows, highlights(?)
+  $info: #1275B3, // Links
+  $success: #395670, // Solved challenge button color
+  $warning: #E35205, 
+  $danger: #CC3A00, // Buttons, links(?) 
+  $light: #FFFFFF, // Text color for nav banner(?) 
+  $dark: #0B2753, // Background color for nav banner 
+  $body-bg: #FFFFFF // Body background color
 );
 
 @use "includes/components/table";
@@ -21,6 +29,7 @@ h1,
 h2 {
   font-weight: 500;
   letter-spacing: 2px;
+  background-color: $secondary;
 }
 
 a {
