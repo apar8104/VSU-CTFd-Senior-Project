@@ -11,17 +11,13 @@
 
 [data-bs-theme="light"] .challenge-button {
   border: none;
-  background-color: #eb7722;
-  &:hover{
-    background-color: #e89051;
-  }
   box-shadow: 0 0 15px var(--bs-secondary);
 
   &.challenge-solved {
-    background-color: #0B2753;
+    background-color: #29c830;
 
     &:hover {
-      background-color: #2e4568;
+      background-color: #37d63e;
     }
   }
 }
