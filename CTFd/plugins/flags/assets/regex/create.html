@@ -1,37 +1,57 @@
+
+
+<div class="form-group">
+    <label>Regex Mode</label>
+    <select class="form-control custom-select col-md-6" name="regex_mode" id="regex_mode">
+        <option value="unranged">Standard Regex</option>
+        <option value="range">Numeric Range</option>
+    </select>
+</div>
 <label>
-	Regex Flag<br>
-	<small>Enter regex flag data</small>
+    Regex Flag<br>
+    <small>Enter regex flag data</small>
 </label>
-<div class="form-group">
-	<input type="text" class="form-control" name="content" value="{{ content }}">
+<div class="form-group" id="regex_input">
+    <input type="text" class="form-control" name="content" value="{{ content }}">
 </div>
-<div class="form-group">
-	<select class="form-control custom-select col-md-6" name="data">
-		<option value="">Case Sensitive</option>
-		<option value="case_insensitive">Case Insensitive</option>
-	</select>
+
+<div class="form-group d-none" id="range_inputs">
+    <label>Numeric Range</label>
+    <div class="d-flex gap-2 col-md-6">
+        <input type="number" class="form-control" name="range_min" placeholder="Min">
+        <input type="number" class="form-control" name="range_max" placeholder="Max">
+    </div>
 </div>
+
 <div class="form-group">
-	<label>Examples</label>
-	<table class="table small">
-		<thead>
-			<tr>
-				<th scope="col">Description</th>
-				<th scope="col">Flag</th>
-			</tr>
-		</thead>
-		<tr>
-			<td>Match any content inside of flag{}:</td>
-			<td><code>flag{.*}</code></td>
-		</tr>
-		<tr>
-			<td>Match numeric flags:</td>
-			<td><code>flag{(\d+)}</code></td>
-		</tr>
-		<tr>
-			<td>Accept flags with or without the flag format prefix:</td>
-			<td><code>(flag{)?this_is_a_flag(})?</code></td>
-		</tr>
-	</table>
+    <select class="form-control custom-select col-md-6" name="case" id="case_option">
+        <option value="">Case Sensitive</option>
+        <option value="case_insensitive">Case Insensitive</option>
+    </select>
 </div>
+
+<input type="hidden" name="data" id="data_field">
 <input type="hidden" name="type" value="regex">
+
+<script>
+document.querySelector("form").addEventListener("submit", function () {
+    const mode = document.getElementById("regex_mode").value;
+    const caseOpt = document.getElementById("case_option").value;
+
+    let data = { mode: mode, case: caseOpt };
+
+    if (mode === "range") {
+        data.min = document.querySelector("[name='range_min']").value;
+        data.max = document.querySelector("[name='range_max']").value;
+    }
+
+    document.getElementById("data_field").value = JSON.stringify(data);
+});
+
+document.getElementById("regex_mode").addEventListener("change", function () {
+    document.getElementById("range_inputs")
+        .classList.toggle("d-none", this.value !== "range");
+    document.getElementById("regex_input")
+        .classList.toggle("d-none", this.value === "range");
+});
+</script>
