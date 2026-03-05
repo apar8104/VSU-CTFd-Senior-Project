@@ -45,8 +45,8 @@
 <script>
     (function(){
         const convertBtn = document.getElementById("range_convert_btn");
-        if (convertBtn) {
             convertBtn.onclick = function(){
+                alert("btn pressed");
                 const min = document.getElementById("range_min_input").value;
                 const max = document.getElementById("range_max_input").value;
                 const display = document.getElementById("range_display_input");
@@ -57,7 +57,6 @@
                 }else{
                     alert("Please enter both a Min and Max value.");
                 }
-            }
         }
     });
 
