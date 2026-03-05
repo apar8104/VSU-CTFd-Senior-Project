@@ -51,14 +51,15 @@
                 const max = document.getElementById("range_max_input").value;
                 const display = document.getElementById("range_display_input");
                 if (min !== "" && max !==""){
-                    display.value = min + "-" + max;
+                    
+                    //display.value = min + "-" + max;
 
                     console.log("Range converted:", display.value);
                 }else{
                     alert("Please enter both a Min and Max value.");
                 }
         }
-    });
+    })();
 
     // cleaner submit
 document.querySelector("form").addEventListener("submit", function () {
