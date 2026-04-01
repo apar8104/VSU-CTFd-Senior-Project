@@ -68,8 +68,12 @@ class CTFdRegexFlag(BaseFlag):
 
         return res and res.group() == provided
 
+# New Flag Type: Numerical Range
+#class CTFNumericalRange(BaseFlag):
+#    placeholder = 0
+#    return placeholder
 
-FLAG_CLASSES = {"static": CTFdStaticFlag, "regex": CTFdRegexFlag}
+FLAG_CLASSES = {"static": CTFdStaticFlag, "regex": CTFdRegexFlag, "range": CTFNumericalRange}
 
 
 def get_flag_class(class_id):
