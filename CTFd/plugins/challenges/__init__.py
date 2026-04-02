@@ -11,7 +11,7 @@ from CTFd.exceptions.challenges import (
 from CTFd.models import (
     ChallengeFiles,
     Challenges,
-    Fails,
+    Fails,  
     Flags,
     Hints,
     Partials,
