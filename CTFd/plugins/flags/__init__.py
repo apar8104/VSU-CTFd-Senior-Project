@@ -68,12 +68,31 @@ class CTFdRegexFlag(BaseFlag):
 
         return res and res.group() == provided
 
-# New Flag Type: Numerical Range
-#class CTFNumericalRange(BaseFlag):
-#    placeholder = 0
-#    return placeholder
+# New Flag Type: Numerical Range (WIP Currently with Regex code)
+class CTFNumericalRange(BaseFlag):
+     name = "numerical range"
+     templates = {  # Nunjucks templates used for key editing & viewing
+        "create": "/plugins/flags/assets/numerical_range/create.html",
+        "update": "/plugins/flags/assets/numerical_range/edit.html",
+    }
 
-FLAG_CLASSES = {"static": CTFdStaticFlag, "regex": CTFdRegexFlag, "range": CTFNumericalRange}
+    @staticmethod
+    def compare(chal_key_obj, provided):
+        saved = chal_key_obj.content
+        data = chal_key_obj.data
+
+        try:
+            if data == "case_insensitive":
+                res = re.match(saved, provided, re.IGNORECASE)
+            else:
+                res = re.match(saved, provided)
+        # TODO: this needs plugin improvements. See #1425.
+        except re.error as e:
+            raise FlagException("Regex parse error occured") from e
+
+        return res and res.group() == provided
+
+FLAG_CLASSES = {"static": CTFdStaticFlag, "regex": CTFdRegexFlag} #"range": CTFNumericalRange
 
 
 def get_flag_class(class_id):
