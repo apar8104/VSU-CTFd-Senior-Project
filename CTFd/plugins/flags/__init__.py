@@ -70,10 +70,10 @@ class CTFdRegexFlag(BaseFlag):
 
 # New Flag Type: Numerical Range (WIP Currently with Regex code)
 class CTFNumericalRange(BaseFlag):
-     name = "numerical range"
+     name = "range"
      templates = {  # Nunjucks templates used for key editing & viewing
-        "create": "/plugins/flags/assets/numerical_range/create.html",
-        "update": "/plugins/flags/assets/numerical_range/edit.html",
+        "create": "/plugins/flags/assets/range/create.html",
+        "update": "/plugins/flags/assets/range/edit.html",
     }
 
     @staticmethod
@@ -92,7 +92,9 @@ class CTFNumericalRange(BaseFlag):
 
         return res and res.group() == provided
 
-FLAG_CLASSES = {"static": CTFdStaticFlag, "regex": CTFdRegexFlag} #"range": CTFNumericalRange
+FLAG_CLASSES = {"static": CTFdStaticFlag, 
+                "regex": CTFdRegexFlag, 
+                "range": CTFNumericalRange}
 
 
 def get_flag_class(class_id):

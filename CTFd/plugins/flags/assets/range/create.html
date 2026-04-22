@@ -1,0 +1,40 @@
+ <label>Numerical range (min-max)<br>
+    <small class="form-text text-muted">
+        Enter the minimum and maximum acceptable values.
+    </small>   
+</label>
+<div class="form-group" id="range_inputs">
+   <div class="d-flex gap-2 col-md-6 px-0">
+        <input type="number" class="form-control" id="range_min_input" placeholder="Min" required>
+        <input type="number" class="form-control" id="range_max_input" placeholder="Max" required>
+   </div>
+</div>
+
+<input type="hidden" name="content" id="final_content">
+<input type="hidden" name="type" value="range">
+
+<script>
+    (function(){
+        const minInput = document.getElementById("range_min_input");
+        const maxInput = document.getElementById("range_max_input");
+        const finalContent = document.getElementById("final_content");
+
+        //Sync the inputs to the hidden 'content' field saved by CTFd
+        const updateContent = () => {
+            if (minInput.value !== "" && maxInput.value !== "") {
+                finalContent.value = minInput.value + "-" + maxInput.value;
+            }
+        };
+
+        minInput.addEventListener("input", updateContent);
+        maxInput.addEventListener("input", updateContent);
+
+        //Validation on submit
+        document.querySelector("form").addEventListener("submit", function (e){
+            if (minInput.value === "" || maxInput.value === ""){
+                alert("Please enter both a Min and Max value.");
+                e.preventDefault();
+            }
+        });
+    }) ();
+</script>
