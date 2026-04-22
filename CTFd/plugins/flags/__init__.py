@@ -78,19 +78,17 @@ class CTFNumericalRange(BaseFlag):
 
     @staticmethod
     def compare(chal_key_obj, provided):
-        saved = chal_key_obj.content
-        data = chal_key_obj.data
-
         try:
-            if data == "case_insensitive":
-                res = re.match(saved, provided, re.IGNORECASE)
-            else:
-                res = re.match(saved, provided)
-        # TODO: this needs plugin improvements. See #1425.
-        except re.error as e:
-            raise FlagException("Regex parse error occured") from e
+            # provided is user's answer
+            val = float(provided.strip())
 
-        return res and res.group() == provided
+            # chal_key_obj.content is the finalcontent.value from range folder(create.html)
+            minimum, maximum = map(float, chal_key_obj.content.split('-'))
+
+            return minimum <= val <= maximum
+        except:
+            return False
+       
 
 FLAG_CLASSES = {"static": CTFdStaticFlag, 
                 "regex": CTFdRegexFlag, 
