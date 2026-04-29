@@ -1,6 +1,28 @@
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import os 
+from CTFd.models import Challenges, Solves, Configs
+from CTFd.utils import get_config
+import time
+
+def user_completed_ctf(user):
+    total = Challenges.query.count()
+    solved = Solves.query.filter_by(user_id=user.id).count()
+    return total > 0 and solved >= total
+
+
+def can_get_certificate(user):
+    return user_completed_ctf(user) or ctf_has_ended()
+
+def ctf_has_ended():
+    end = Configs.query.filter_by(key="ctf_end").first()
+
+    if not end:
+        return False
+    try:
+        return float(end) < time.time()
+    except Exception:
+        return False
 
 def generate_certificate(username):
     file_path = f"/tmp/{username}_certificate.pdf"
