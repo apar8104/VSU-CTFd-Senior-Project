@@ -1,0 +1,73 @@
+<div class="form-group">
+    <label>Time Mode</label>
+    <select class="form-control custom-select" id="time_mode_select">
+        <option value="specific">Specific Time (HH:MM:SS)</option>
+        <option value="range">Time Range</option>
+    </select>
+</div>
+
+<div class="form-group" id="specific_time_container">
+    <label>Target Time</label>
+    <input type="text" class="form-control" id="target_time" placeholder="02:30:00">
+</div>
+
+<div class="form-group d-none" id="range_time_container">
+    <div class="row">
+        <div class="col-md-6">
+            <label>Start Time</label>
+            <input type="text" class="form-control" id="start_time_input" placeholder="02:00:00">
+        </div>
+        <div class="col-md-6">
+            <label>End Time</label>
+            <input type="text" class="form-control" id="end_time_input" placeholder="03:00:00">
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="content" id="final_content">
+<input type="hidden" name="data" id="data_field">
+<input type="hidden" name="type" value="time">
+
+<script>
+(function(){
+    const modeSelect = document.getElementById("time_mode_select");
+    const specificCont = document.getElementById("specific_time_container");
+    const rangeCont = document.getElementById("range_time_container");
+
+    function updateFields() {
+        const mode = modeSelect.value;
+        let dataObj = { mode: mode };
+        let contentVal = "";
+
+        if (mode === "specific") {
+            contentVal = document.getElementById("target_time").value;
+            dataObj.target = contentVal;
+        } else {
+            const start = document.getElementById("start_time_input").value;
+            const end = document.getElementById("end_time_input").value;
+            contentVal = start + "-" + end; // Sets the "Flag" column text
+            dataObj.start = start;
+            dataObj.end = end;
+        }
+
+        document.getElementById("final_content").value = contentVal;
+        document.getElementById("data_field").value = JSON.stringify(dataObj);
+    }
+
+    modeSelect.addEventListener("change", function() {
+        if (this.value === "specific") {
+            specificCont.classList.remove("d-none");
+            rangeCont.classList.add("d-none");
+        } else {
+            specificCont.classList.add("d-none");
+            rangeCont.classList.remove("d-none");
+        }
+        updateFields();
+    });
+
+    // Listen to all inputs to update hidden fields in real-time
+    document.querySelectorAll('#target_time, #start_time_input, #end_time_input').forEach(input => {
+        input.addEventListener('input', updateFields);
+    });
+})();
+</script>

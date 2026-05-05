@@ -1,0 +1,75 @@
+<label>
+    Numerical range<br>
+    <small class="form-text text-muted">Modify the minimum and maximum acceptable values for this flag.</small>
+</label>
+
+{# PArse existing JSON data from the database #}
+{% set parsed = data | from_json if data else {} %}
+
+<div class="form-group" id="range_inputs">
+    <div class="d-flex gap-2 col-md-6 px-0">
+        <div class="flex-glow-1">
+            <small class="text-muted">Min</small>
+            <input type="number" class="form-control" id="range_min_input"
+                    value="{{ parsed.min if parsed.min }}" placeholder="Min" required>
+        </div>
+        <div class="flex-grow-1">
+            <small class="text-muted">Max</small>
+            <input type="number" class="form-control" id="range_max_input"
+                    value="{{ parsed.max if parsed.max }}" placeholder="Max" required>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+{# Hidden inputs required by CTFd to update the database record #}
+<input type="hidden" name="content" id="final_content" value="{{ content }}">
+<input type="hidden" name="data" id="data_field">
+<input type="hidden" name="type" value="range">
+<input type="hidden" name="id" value="{{ id }}">
+
+<div class="form-group">
+    <button type="submit" class="btn btn-success float-right">Update</button>
+</div>
+
+<script>
+    // Using a self-executing function to keep variables local and avoid conflicts
+    (function(){
+        // 1. Get references to the UI elements
+        const minInput = document.getElementById("range_min_input");
+        const maxInput = document.getElementById("range_max_input");
+        const finalContent = document.getElementById("final_content");
+        const dataField = document.getElementById("data_field");
+
+        // Use the closest form to ensure we're targeting the right one in the modal
+        const form = minInput.closest("form");
+
+        if (form) {
+            form.addEventListener("submit", function (e) {
+                // 2. Get the actual VALUES (strings/numbers)
+                // Comparing values like this avoids the "reference" warning
+                const minVal = minInput.value;
+                const maxVal = maxInput.value;
+
+                // 3. Validation logic
+                if (minVal === "" || maxVal === "") {
+                    alert("Please enter both a Min and Max value.");
+                    e.preventDefault(); // Stop the form from saving
+                    return;
+                }
+
+                // 4. Set the values CTFd will save to the database
+                // Content: A simple string "10-50"
+                finalContent.value = minVal + "-" + maxVal;
+
+                // Data: A JSON string {"min":"10","max":"50"}
+                // We stringify it so the database sees a string, not a JS object
+                dataField.value = JSON.stringify({
+                    min: minVal,
+                    max: maxVal
+                });
+            });
+        }
+    })();
+</script>

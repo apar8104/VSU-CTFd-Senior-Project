@@ -51,7 +51,50 @@
                 const max = document.getElementById("range_max_input").value;
                 const display = document.getElementById("range_display_input");
                 if (min !== "" && max !==""){
-                    display.value = min + "-" + max;
+                    const startAnchor = "^";
+                    const endAnchor = "$";
+
+                    //a maximum over 9
+                    if(max > 9){
+                        var rangeFormated; 
+
+                        var count = 0;
+                        const intervals = 9;
+
+                        var currentNum = min;
+                        var previousNum;
+                        do{  
+                            if(currentNum <= 10 && currentNum <= max){
+                                rangeFormated = "["+min+"-"+currentNum+"]";
+                                previousNum = currentNum;
+                            }else{
+                                var startingNum;
+                                var endingNum;
+
+                                for(let i = currentNum.charAt(currentNum.length-1); i <= intervals; i++){
+                                    if(startingNum!=currentNum.charAt(0)){
+                                        if()
+                                        var startingNum = currentNum.charAt(0);
+                                    }
+                                }
+                                
+                                
+                                
+                                 
+                                var endingNum = currentNum.charAt(currentNum.length-1);
+
+
+                            }
+
+                        } while(currentNum!=max);
+                        display.value = startAnchor + 
+                    }/*a maximum of 9 or under*/
+                    else{
+                        display.value = startAnchor+"["+ min + "-" + max +"]"+endAnchor;
+                    }
+
+                    
+                    
 
                     console.log("Range converted:", display.value);
                 }else{
