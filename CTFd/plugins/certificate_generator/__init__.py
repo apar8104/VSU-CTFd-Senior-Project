@@ -1,4 +1,5 @@
 from flask import Blueprint
+from CTFd.utils.user import get_current_user
 
 def load(app):
     from .routes import certificate_bp
@@ -8,4 +9,5 @@ def load(app):
 
     @app.context_processor
     def inject_certificate_flag():
-        return dict(can_get_certificate=can_get_certificate)
+        user = get_current_user()
+        return dict(can_get_certificate=can_get_certificate(user) if user else False)

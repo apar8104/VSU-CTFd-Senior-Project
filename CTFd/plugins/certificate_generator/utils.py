@@ -20,7 +20,7 @@ def ctf_has_ended():
     if not end:
         return False
     try:
-        return float(end) < time.time()
+        return float(end.value) < time.time()
     except Exception:
         return False
 

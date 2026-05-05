@@ -26,6 +26,7 @@ from CTFd.admin import statistics  # noqa: F401,I001
 from CTFd.admin import submissions  # noqa: F401,I001
 from CTFd.admin import teams  # noqa: F401,I001
 from CTFd.admin import users  # noqa: F401,I001
+from CTFd.admin import certificates  # noqa: F401,I001
 from CTFd.cache import (
     cache,
     clear_all_team_sessions,
@@ -182,31 +183,34 @@ def config():
     # Clear the config cache so that we don't get stale values
     clear_config()
 
+    if request.method == "POST":
+        # Save all config values as normal
+        for k, v in request.form.items():
+            if k in ("nonce", "action"):
+                continue
+            set_config(k, v)
+        clear_config()
+
+        return redirect(url_for("admin.config"))
+
+    # GET
     configs = Configs.query.all()
     configs = {c.key: get_config(c.key) for c in configs}
-
-    # Load in defaults that would normally exist on UI setup
     for k, v in DEFAULTS.items():
         if k not in configs:
             configs[k] = v
-
     themes = ctf_config.get_themes()
-
-    # Remove current theme but ignore failure
     try:
         themes.remove(get_config("ctf_theme"))
     except ValueError:
         pass
-
     force_html_sanitization = get_app_config("HTML_SANITIZATION")
-
     return render_template(
         "admin/config.html",
         themes=themes,
         **configs,
-        force_html_sanitization=force_html_sanitization
+        force_html_sanitization=force_html_sanitization,
     )
-
 
 @admin.route("/admin/reset", methods=["GET", "POST"])
 @admins_only
