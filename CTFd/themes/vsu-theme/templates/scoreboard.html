@@ -7,10 +7,12 @@
         {% trans %}Scoreboard{% endtrans %}
       </h1>
 
-      <a href="/certificate/download" class="btn btn-success">
-        Download Certificate
-      </a>
-
+      {% if can_get_certificate %}
+        <a href="/certificate/download" class="btn btn-success">
+          Download Certificate
+        </a>
+      {% endif %}
+      
     </div>
   </div>
   <div class="container">

@@ -11,6 +11,8 @@ from CTFd.constants.email import (
     DEFAULT_USER_CREATION_EMAIL_SUBJECT,
     DEFAULT_VERIFICATION_EMAIL_BODY,
     DEFAULT_VERIFICATION_EMAIL_SUBJECT,
+    DEFAULT_WINNER_CERTIFICATE_SUBJECT,
+    DEFAULT_WINNER_CERTIFICATE_BODY,
 )
 from CTFd.utils import get_config
 from CTFd.utils.config import get_mail_provider
@@ -25,13 +27,14 @@ from CTFd.utils.security.email import (
 PROVIDERS = {"smtp": SMTPEmailProvider, "mailgun": MailgunEmailProvider}
 
 
-def sendmail(addr, text, subject="Message from {ctf_name}"):
+def sendmail(addr, text, subject="Message from {ctf_name}", attachment=None):
     subject = safe_format(subject, ctf_name=get_config("ctf_name"))
     provider = get_mail_provider()
     EmailProvider = PROVIDERS.get(provider)
     if EmailProvider is None:
         return False, "No mail settings configured"
-    return EmailProvider.sendmail(addr, text, subject)
+    return EmailProvider.sendmail(addr, text, subject, attachment=attachment)
+    
 
 
 def password_change_alert(email):
@@ -123,6 +126,39 @@ def user_created_notification(addr, name, password):
     )
     return sendmail(addr=addr, text=text, subject=subject)
 
+def winner_certificate(addr, name, rank, score):
+    from CTFd.plugins.certificate_generator.utils import generate_winner_certificate
+    import os
+
+    ordinals = {1: "1st", 2: "2nd", 3: "3rd"}
+    rank_label = ordinals.get(rank, f"{rank}th")
+    ctf_name = get_config("ctf_name")
+
+    subject = f"Congratulations from {ctf_name}!"
+
+    text = (
+        f"Congratulations {name}!\n\n"
+        f"You finished in {rank_label} place "
+        f"with a final score of {score} points in {ctf_name}.\n\n"
+        "Please find your winner certificate attached. Well done!"
+    )
+    try:
+        cert_path = generate_winner_certificate(name, rank)
+    except Exception as e:
+        print(f"[winner_certificate] Failed to generate certificate: {e}", flush=True)
+        cert_path = None
+
+    result = sendmail(addr=addr, text=text, subject=subject, attachment=cert_path)
+
+    # Clean up the temp file after sending
+    if cert_path and os.path.isfile(cert_path):
+        try:
+            os.remove(cert_path)
+        except Exception:
+            pass
+
+    print("[winner_certificate] SENDMAIL RESULT:", result, flush=True)
+    return result
 
 def check_email_is_whitelisted(email_address):
     local_id, _, domain = email_address.partition("@")

@@ -13,6 +13,14 @@ services:
       - ACCESS_LOG=-
       - ERROR_LOG=-
       - REVERSE_PROXY=true
+      - MAIL_SERVER=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USE_TLS=true
+      - MAIL_USE_SSL=false
+      - MAIL_USERNAME=vsuctfportal82@gmail.com
+      - MAIL_PASSWORD=ypdmqygtqlfnmssn
+      - MAIL_DEFAULT_SENDER=vsuctfportal82@gmail.com
+
     volumes:
       - .data/CTFd/logs:/var/log/CTFd
       - .data/CTFd/uploads:/var/uploads

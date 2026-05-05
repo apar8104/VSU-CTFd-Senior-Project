@@ -29,3 +29,9 @@ DEFAULT_PASSWORD_CHANGE_ALERT_BODY = (
     "If you didn't request a password change you can reset your password here:\n{url}\n\n"
     "If the link is not clickable, try copying and pasting it into your browser."
 )
+DEFAULT_WINNER_CERTIFICATE_SUBJECT = "Congratulations from {ctf_name}!"
+DEFAULT_WINNER_CERTIFICATE_BODY = (
+    "Congratulations {name}!\n\n"
+    "You finished in {rank} place with a final score of {score} points in {ctf_name}.\n\n"
+    "Thank you for competing — well done!"
+)

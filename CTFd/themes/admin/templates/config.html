@@ -123,6 +123,11 @@
 					</a>
 				</li>
 				<li class="nav-item">
+					<a class="nav-link rounded-0 py-1" href="#certificates" role="tab" data-toggle="tab">
+						<i class="fa fa-trophy action-icon"></i>Winner Certificates
+					</a>
+				</li>
+				<li class="nav-item">
 					<a class="nav-link rounded-0 py-1" href="#social" role="tab" data-toggle="tab">
 						<i class="fa fa-share-nodes action-icon"></i>Social Sharing
 					</a>
@@ -132,6 +137,7 @@
 						<i class="fa fa-network-wired action-icon"></i>MajorLeagueCyber
 					</a>
 				</li>
+				
 				
 				<!-- Plugins -->
 				{% set plugins = get_configurable_plugins() %}
@@ -185,6 +191,7 @@
 				<!-- Appearance -->
 
 				{% include "admin/configs/logo.html" %}
+				{% include "admin/configs/certificates.html" %}
 
 				{% include "admin/configs/theme.html" %}
 

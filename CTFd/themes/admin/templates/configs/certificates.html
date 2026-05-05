@@ -1,0 +1,58 @@
+<div role="tabpanel" class="tab-pane config-section" id="certificates">
+    {% set winner_certificate_subject = winner_certificate_subject if winner_certificate_subject is defined and winner_certificate_subject != None else "" %}
+    {% set winner_certificate_body = winner_certificate_body if winner_certificate_body is defined and winner_certificate_body != None else "" %}
+
+    <h5>Winner Certificates</h5>
+    <small class="form-text text-muted">
+        Customize and send winner certificates to the top 3 scoring users.
+        Available variables: <code>{ctf_name}</code>, <code>{name}</code>, <code>{rank}</code>, <code>{score}</code>
+    </small>
+
+    <div class="form-group mt-3">
+        <label>Subject</label>
+        <input
+            type="text"
+            class="form-control"
+            name="winner_certificate_subject"
+            value="{{ winner_certificate_subject or 'Congratulations from {ctf_name}!' }}"
+        />
+        <small class="form-text text-muted">Subject line of the certificate email.</small>
+    </div>
+
+    <div class="form-group">
+        <label>Body</label>
+        <textarea
+            class="form-control"
+            name="winner_certificate_body"
+            rows="6"
+        >{{ winner_certificate_body or "Congratulations {name}!\n\nYou finished in {rank} place with a final score of {score} points in {ctf_name}.\n\nThank you for competing — well done!" }}</textarea>
+        <small class="form-text text-muted">Body of the certificate email.</small>
+    </div>
+
+    <hr>
+
+    <h6>Send Certificates</h6>
+<small class="form-text text-muted mb-3 d-block">
+    Emails the top 3 users immediately using the subject and body above.
+    Make sure the CTF has ended and your mail server is configured first.
+</small>
+
+<button type="button" class="btn btn-danger" onclick="sendCertificates()">
+    Send Winner Certificates
+</button>
+
+<script>
+function sendCertificates() {
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/admin/certificates/send';
+    var nonce = document.createElement('input');
+    nonce.type = 'hidden';
+    nonce.name = 'nonce';
+    nonce.value = CTFd.config.csrfNonce;
+    form.appendChild(nonce);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+</div>
