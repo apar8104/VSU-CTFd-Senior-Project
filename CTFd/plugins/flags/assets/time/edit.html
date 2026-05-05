@@ -1,7 +1,8 @@
+{% set data = flag.data|load_json if flag.data else {} %}
+
 <div class="form-group">
     <label>Time Mode</label>
-    {% set data = flag.data|load_json %}
-    <select class="form-control custom-select" id="time_mode_select">
+    <select class="form-control custom-select" id="time_mode_select_edit">
         <option value="specific" {% if data.mode == 'specific' %}selected{% endif %}>Specific Time (HH:MM:SS)</option>
         <option value="range" {% if data.mode == 'range' %}selected{% endif %}>Time Range</option>
     </select>
@@ -10,20 +11,19 @@
 <div class="form-group {% if data.mode == 'range' %}d-none{% endif %}" id="specific_time_container_edit">
     <label>Target Time</label>
     <input type="text" class="form-control" id="target_time_edit" 
-           value="{{ data.target if data.mode == 'specific' else '' }}" 
-           placeholder="00:12:30">
+           value="{{ data.target if data.mode == 'specific' else '' }}" placeholder="00:12:30">
 </div>
 
-<div class="form-group {% if data.mode == 'specific' %}d-none{% endif %}" id="range_time_container">
+<div class="form-group {% if data.mode == 'specific' or not data.mode %}d-none{% endif %}" id="range_time_container_edit">
     <div class="row">
         <div class="col-md-6">
             <label>Start Time</label>
-            <input type="text" class="form-control" id="start_time" 
+            <input type="text" class="form-control" id="start_time_edit" 
                    value="{{ data.start if data.mode == 'range' else '' }}" placeholder="00:00:00">
         </div>
         <div class="col-md-6">
             <label>End Time</label>
-            <input type="text" class="form-control" id="end_time" 
+            <input type="text" class="form-control" id="end_time_edit" 
                    value="{{ data.end if data.mode == 'range' else '' }}" placeholder="00:59:59">
         </div>
     </div>
@@ -31,33 +31,32 @@
 
 <input type="hidden" name="content" id="final_content_edit" value="{{ flag.content }}">
 <input type="hidden" name="data" id="data_field_edit" value="{{ flag.data }}">
+<input type="hidden" name="type" value="time">
 
 <script>
 (function(){
-    const modeSelect = document.getElementById("time_mode_select");
-    const specificCont = document.getElementById("specific_time_container");
-    const rangeCont = document.getElementById("range_time_container");
+    const modeSelect = document.getElementById("time_mode_select_edit");
+    const specificCont = document.getElementById("specific_time_container_edit");
+    const rangeCont = document.getElementById("range_time_container_edit");
 
     function updateHiddenFields() {
         const mode = modeSelect.value;
         let dataObj = { mode: mode };
 
         if (mode === "specific") {
-            const val = document.getElementById("target_time").value;
-            document.getElementById("final_content").value = val;
+            const val = document.getElementById("target_time_edit").value;
+            document.getElementById("final_content_edit").value = val;
             dataObj.target = val;
         } else {
-            const start = document.getElementById("start_time_input").value;
-            const end = document.getElementById("end_time_input").value;
-            document.getElementById("final_content").value = start + "-" + end;
+            const start = document.getElementById("start_time_edit").value;
+            const end = document.getElementById("end_time_edit").value;
+            document.getElementById("final_content_edit").value = start + "-" + end;
             dataObj.start = start;
             dataObj.end = end;
         }
-        // This is the most important line!
-        document.getElementById("data_field").value = JSON.stringify(dataObj);
+        document.getElementById("data_field_edit").value = JSON.stringify(dataObj);
     }
 
-    // Update whenever anything changes
     modeSelect.addEventListener("change", function() {
         const isRange = this.value === "range";
         specificCont.classList.toggle("d-none", isRange);
@@ -65,8 +64,7 @@
         updateHiddenFields();
     });
 
-    // Listen to all inputs within this container
-    document.querySelectorAll('#specific_time_container input, #range_time_container input').forEach(input => {
+    document.querySelectorAll('#specific_time_container_edit input, #range_time_container_edit input').forEach(input => {
         input.addEventListener('input', updateHiddenFields);
     });
 })();

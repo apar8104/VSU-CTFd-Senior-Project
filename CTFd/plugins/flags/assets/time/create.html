@@ -8,19 +8,18 @@
 
 <div class="form-group" id="specific_time_container">
     <label>Target Time</label>
-    <input type="text" class="form-control" id="target_time" placeholder="00:12:30" pattern="[0-9]{1,2}:[0-9]{2}:[0-9]{2}">
-    <small class="text-muted">Format: Hours:Minutes:Seconds</small>
+    <input type="text" class="form-control" id="target_time" placeholder="02:30:00">
 </div>
 
 <div class="form-group d-none" id="range_time_container">
     <div class="row">
         <div class="col-md-6">
             <label>Start Time</label>
-            <input type="text" class="form-control" id="start_time" placeholder="00:00:00">
+            <input type="text" class="form-control" id="start_time_input" placeholder="02:00:00">
         </div>
         <div class="col-md-6">
             <label>End Time</label>
-            <input type="text" class="form-control" id="end_time" placeholder="00:59:59">
+            <input type="text" class="form-control" id="end_time_input" placeholder="03:00:00">
         </div>
     </div>
 </div>
@@ -31,44 +30,44 @@
 
 <script>
 (function(){
-    // Use more specific selectors to avoid collisions with other flags
-    const modal = document.querySelector('#content-modal');
-    const modeSelect = modal.querySelector("#time_mode_select");
-    const specificCont = modal.querySelector("#specific_time_container");
-    const rangeCont = modal.querySelector("#range_time_container");
-    
-    const finalContent = modal.querySelector("#final_content");
-    const dataField = modal.querySelector("#data_field");
+    const modeSelect = document.getElementById("time_mode_select");
+    const specificCont = document.getElementById("specific_time_container");
+    const rangeCont = document.getElementById("range_time_container");
 
-    function sync() {
+    function updateFields() {
         const mode = modeSelect.value;
         let dataObj = { mode: mode };
+        let contentVal = "";
 
         if (mode === "specific") {
-            const val = modal.querySelector("#target_time").value;
-            finalContent.value = val;
-            dataObj.target = val;
+            contentVal = document.getElementById("target_time").value;
+            dataObj.target = contentVal;
         } else {
-            const start = modal.querySelector("#start_time_input").value;
-            const end = modal.querySelector("#end_time_input").value;
-            // This 'content' is what shows up in the "Flag" column in your screenshot
-            finalContent.value = start + "-" + end; 
+            const start = document.getElementById("start_time_input").value;
+            const end = document.getElementById("end_time_input").value;
+            contentVal = start + "-" + end; // Sets the "Flag" column text
             dataObj.start = start;
             dataObj.end = end;
         }
-        dataField.value = JSON.stringify(dataObj);
+
+        document.getElementById("final_content").value = contentVal;
+        document.getElementById("data_field").value = JSON.stringify(dataObj);
     }
 
-    // Attach listeners to everything
     modeSelect.addEventListener("change", function() {
-        specificCont.classList.toggle("d-none", this.value === "range");
-        rangeCont.classList.toggle("d-none", this.value === "specific");
-        sync();
+        if (this.value === "specific") {
+            specificCont.classList.remove("d-none");
+            rangeCont.classList.add("d-none");
+        } else {
+            specificCont.classList.add("d-none");
+            rangeCont.classList.remove("d-none");
+        }
+        updateFields();
     });
 
-    // Sync on every keystroke so the hidden inputs are always ready
-    modal.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', sync);
+    // Listen to all inputs to update hidden fields in real-time
+    document.querySelectorAll('#target_time, #start_time_input, #end_time_input').forEach(input => {
+        input.addEventListener('input', updateFields);
     });
 })();
 </script>

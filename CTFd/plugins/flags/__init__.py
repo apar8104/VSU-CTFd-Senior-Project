@@ -94,34 +94,39 @@ class CTFdTimeFlag(BaseFlag):
     def compare(chal_key_obj, provided):
         # 1. Convert what the user typed (provided)
         user_seconds = time_to_seconds(provided)
+
         if user_seconds is None:
             return False
-
+        
         try:
             # 2. Parse the saved settings from the database
+            if not chal_key_obj.data:
+                # If there's no JSON data, fall back to a simple string match
+                return chal_key_obj.content.strip() == provided
+            
             saved_data = json.loads(chal_key_obj.data)
             mode = saved_data.get("mode", "specific")
 
             if mode == "range":
-                # CALLING THE TOP-LEVEL FUNCTION HERE
                 start = time_to_seconds(saved_data.get('start'))
                 end = time_to_seconds(saved_data.get('end'))
-                
+
                 if start is not None and end is not None:
                     return start <= user_seconds <= end
-            
+                return False
+
             elif mode == "specific":
                 target = time_to_seconds(saved_data.get('target'))
-                return user_seconds == target
+                if target is not None:
+                    return user_seconds == target
+                return False
 
-        except Exception:
-            # If JSON fails, check the content field as a backup
-            # (Matches what shows in your "Flag" column screenshot)
-            if "-" in chal_key_obj.content:
-                p = chal_key_obj.content.split('-')
-                return time_to_seconds(p[0]) <= user_seconds <= time_to_seconds(p[1])
+        except Exception as e:
+            # Log the error so you can see it in the terminal, but return False 
+            # so the user actually gets an "Incorrect" message instead of a hang.
+            print(f"[Time Plugin Error]: {e}")
             return False
-        return False
+
 
 # New Flag Type: Numerical Range 
 class CTFNumericalRange(BaseFlag):
