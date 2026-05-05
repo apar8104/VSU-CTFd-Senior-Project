@@ -1,5 +1,5 @@
 import re
-
+import json
 from CTFd.plugins import register_plugin_assets_directory
 
 
@@ -68,8 +68,91 @@ class CTFdRegexFlag(BaseFlag):
 
         return res and res.group() == provided
 
+# New Flag Type: Time
+def time_to_seconds(time_str):
+    """Converts HH:MM:SS to total seconds."""
+    if not time_str:
+        return None
+    try:
+        parts = time_str.strip().split(':')
+        if len(parts) == 3:
+            return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+        elif len(parts) == 2:
+            return int(parts[0]) * 60 + int(parts[1])
+        return int(parts[0])
+    except (ValueError, IndexError):
+        return None
 
-FLAG_CLASSES = {"static": CTFdStaticFlag, "regex": CTFdRegexFlag}
+class CTFdTimeFlag(BaseFlag):
+    name = "time"
+    templates = {
+        "create": "/plugins/flags/assets/time/create.html",
+        "update": "/plugins/flags/assets/time/edit.html",
+    }
+    
+    @staticmethod
+    def compare(chal_key_obj, provided):
+        # 1. Convert what the user typed (provided)
+        user_seconds = time_to_seconds(provided)
+
+        if user_seconds is None:
+            return False
+        
+        try:
+            # 2. Parse the saved settings from the database
+            if not chal_key_obj.data:
+                # If there's no JSON data, fall back to a simple string match
+                return chal_key_obj.content.strip() == provided
+            
+            saved_data = json.loads(chal_key_obj.data)
+            mode = saved_data.get("mode", "specific")
+
+            if mode == "range":
+                start = time_to_seconds(saved_data.get('start'))
+                end = time_to_seconds(saved_data.get('end'))
+
+                if start is not None and end is not None:
+                    return start <= user_seconds <= end
+                return False
+
+            elif mode == "specific":
+                target = time_to_seconds(saved_data.get('target'))
+                if target is not None:
+                    return user_seconds == target
+                return False
+
+        except Exception as e:
+            # Log the error so you can see it in the terminal, but return False 
+            # so the user actually gets an "Incorrect" message instead of a hang.
+            print(f"[Time Plugin Error]: {e}")
+            return False
+
+
+# New Flag Type: Numerical Range 
+class CTFNumericalRange(BaseFlag):
+     name = "range"
+     templates = {  # Nunjucks templates used for key editing & viewing
+        "create": "/plugins/flags/assets/range/create.html",
+        "update": "/plugins/flags/assets/range/edit.html",
+    }
+     @staticmethod
+     def compare(chal_key_obj, provided):
+        try:
+            # provided is user's answer
+            val = float(provided.strip())
+
+            # chal_key_obj.content is the finalcontent.value from range folder(create.html)
+            minimum, maximum = map(float, chal_key_obj.content.split('-'))
+
+            return minimum <= val <= maximum
+        except:
+            return False
+       
+
+FLAG_CLASSES = {"static": CTFdStaticFlag, 
+                "regex": CTFdRegexFlag, 
+                "range": CTFNumericalRange,
+                "time": CTFdTimeFlag}
 
 
 def get_flag_class(class_id):

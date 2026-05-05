@@ -1,37 +1,142 @@
+
+
+<div class="form-group">
+    <label>Regex Mode</label>
+    <select class="form-control custom-select col-md-6" name="regex_mode" id="regex_mode">
+        <option value="unranged">Standard Regex</option>
+        <option value="range">Numeric Range</option>
+    </select>
+</div>
 <label>
-	Regex Flag<br>
-	<small>Enter regex flag data</small>
+    Regex Flag<br>
+    <small>Enter regex flag data</small>
 </label>
-<div class="form-group">
-	<input type="text" class="form-control" name="content" value="{{ content }}">
+<!-- This below div is where the flag is recieved from -->
+<div class="form-group" id="regex_input">
+    <input type="text" class="form-control" name="content" value="{{ content }}">
 </div>
-<div class="form-group">
-	<select class="form-control custom-select col-md-6" name="data">
-		<option value="">Case Sensitive</option>
-		<option value="case_insensitive">Case Insensitive</option>
-	</select>
+
+<div class="form-group d-none" id="range_inputs">
+    <label>Numeric Range</label>
+    <div class="d-flex gap-2 col-md-6">
+        <input type="number" class="form-control" id="range_min_input" name="range_min" placeholder="Min">
+        <input type="number" class="form-control" id="range_max_input" name="range_max" placeholder="Max">
+        <!-- Need a conversion btn here -->
+         <button type="button" class="btn btn-secondary" id="range_convert_btn" >
+            Convert
+        </button>
+    </div>
+    <label>
+        <small>The Conversion:</small>
+    </label>
+    <input type="text" class="form-control" id="range_display_input" name="content" value="{{content}}" placeholder="Regex will appear here...">
 </div>
+
 <div class="form-group">
-	<label>Examples</label>
-	<table class="table small">
-		<thead>
-			<tr>
-				<th scope="col">Description</th>
-				<th scope="col">Flag</th>
-			</tr>
-		</thead>
-		<tr>
-			<td>Match any content inside of flag{}:</td>
-			<td><code>flag{.*}</code></td>
-		</tr>
-		<tr>
-			<td>Match numeric flags:</td>
-			<td><code>flag{(\d+)}</code></td>
-		</tr>
-		<tr>
-			<td>Accept flags with or without the flag format prefix:</td>
-			<td><code>(flag{)?this_is_a_flag(})?</code></td>
-		</tr>
-	</table>
+    <select class="form-control custom-select col-md-6" name="case" id="case_option">
+        <option value="">Case Sensitive</option>
+        <option value="case_insensitive">Case Insensitive</option>
+    </select>
 </div>
+
+<input type="hidden" name="data" id="data_field">
 <input type="hidden" name="type" value="regex">
+
+<script>
+    (function(){
+        const convertBtn = document.getElementById("range_convert_btn");
+            convertBtn.onclick = function(){
+                alert("btn pressed");
+                const min = document.getElementById("range_min_input").value;
+                const max = document.getElementById("range_max_input").value;
+                const display = document.getElementById("range_display_input");
+                if (min !== "" && max !==""){
+                    const startAnchor = "^";
+                    const endAnchor = "$";
+
+                    //a maximum over 9
+                    if(max > 9){
+                        var rangeFormated; 
+
+                        var count = 0;
+                        const intervals = 9;
+
+                        var currentNum = min;
+                        var previousNum;
+                        do{  
+                            if(currentNum <= 10 && currentNum <= max){
+                                rangeFormated = "["+min+"-"+currentNum+"]";
+                                previousNum = currentNum;
+                            }else{
+                                var startingNum;
+                                var endingNum;
+
+                                for(let i = currentNum.charAt(currentNum.length-1); i <= intervals; i++){
+                                    if(startingNum!=currentNum.charAt(0)){
+                                        if()
+                                        var startingNum = currentNum.charAt(0);
+                                    }
+                                }
+                                
+                                
+                                
+                                 
+                                var endingNum = currentNum.charAt(currentNum.length-1);
+
+
+                            }
+
+                        } while(currentNum!=max);
+                        display.value = startAnchor + 
+                    }/*a maximum of 9 or under*/
+                    else{
+                        display.value = startAnchor+"["+ min + "-" + max +"]"+endAnchor;
+                    }
+
+                    
+                    
+
+                    console.log("Range converted:", display.value);
+                }else{
+                    alert("Please enter both a Min and Max value.");
+                }
+        }
+    })();
+
+    // cleaner submit
+document.querySelector("form").addEventListener("submit", function () {
+        const mode = document.getElementById("regex_mode").value;
+        const caseOpt = document.getElementById("case_option").value;
+        
+        // Define 'data' so the JSON.stringify doesn't fail
+        let data = { mode: mode, case: caseOpt };
+
+        if (mode === "range") {
+            data.min = document.getElementById("range_min_input").value;
+            data.max = document.getElementById("range_max_input").value;
+        }
+
+        document.getElementById("data_field").value = JSON.stringify(data);
+    });
+
+// document.querySelector("form").addEventListener("submit", function () {
+//     const mode = document.getElementById("regex_mode").value;
+//     const caseOpt = document.getElementById("case_option").value;
+
+//     // let data = { mode: mode, case: caseOpt };
+
+//     // if (mode === "range") {
+//     //     data.min = document.querySelector("[name='range_min']").value;
+//     //     data.max = document.querySelector("[name='range_max']").value;
+//     // }
+
+//     document.getElementById("data_field").value = JSON.stringify(data);
+// });
+
+document.getElementById("regex_mode").addEventListener("change", function () {
+    document.getElementById("range_inputs")
+        .classList.toggle("d-none", this.value !== "range");
+    document.getElementById("regex_input")
+        .classList.toggle("d-none", this.value === "range");
+});
+</script>

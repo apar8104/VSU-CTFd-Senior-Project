@@ -125,7 +125,7 @@ packaging==25.0
     # via gunicorn
 passlib==1.7.4
     # via -r requirements.in
-pillow==11.3.0
+pillow==12.1.1
     # via -r requirements.in
 pycparser==2.22
     # via cffi
@@ -182,7 +182,7 @@ typing-extensions==4.14.1
     # via
     #   alembic
     #   referencing
-urllib3==2.5.0
+urllib3==2.6.0
     # via
     #   -r requirements.in
     #   botocore
@@ -198,6 +198,6 @@ zope-event==5.1.1
     # via gevent
 zope-interface==7.2
     # via gevent
-
+reportlab==4.4.10
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

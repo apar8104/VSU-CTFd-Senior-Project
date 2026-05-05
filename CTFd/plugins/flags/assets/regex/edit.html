@@ -2,18 +2,97 @@
 	Regex<br>
 	<small>Enter regex key data</small>
 </label>
+
+{% set parsed = {} %}
+{% if data %}
+	{% if data.startswith('{') %}
+		{% set parsed = data | from_json %}
+	{% else %}
+		{% set parsed = {"mode":"unranged","case":data} %}
+	{% endif %}
+{% endif %}
+
+<!-- Mode Selector -->
 <div class="form-group">
-	<input type="text" class="form-control" name="content" value="{{ content }}">
-</div>
-<div class="form-group">
-	<select class="form-control custom-select col-md-6" name="data">
-		<option value="">Case Sensitive</option>
-		<option value="case_insensitive" {% if data %}selected{% endif %}>Case Insensitive</option>
+	<label>Regex Mode</label>
+	<select class="form-control custom-select col-md-6" name="regex_mode" id="regex_mode">
+		<option value="unranged"
+			{% if parsed.mode != "range" %}selected{% endif %}>
+			Standard Regex
+		</option>
+		<option value="range"
+			{% if parsed.mode == "range" %}selected{% endif %}>
+			Numeric Range
+		</option>
 	</select>
 </div>
+
+<!-- Normal Regex -->
+<div class="form-group"
+	id="regex_input"
+	{% if parsed.mode == "range" %}style="display:none"{% endif %}>
+	<input type="text" class="form-control" name="content" value="{{ content }}">
+</div>
+
+<!-- Range Inputs -->
+<div class="form-group"
+	id="range_inputs"
+	{% if parsed.mode != "range" %}style="display:none"{% endif %}>
+	<label>Numeric Range</label>
+	<div class="d-flex gap-2 col-md-6">
+		<input type="number" class="form-control" name="range_min"
+			value="{{ parsed.min if parsed.min }}">
+		<input type="number" class="form-control" name="range_max"
+			value="{{ parsed.max if parsed.max }}">
+	</div>
+</div>
+
+<!-- Case Option -->
+<div class="form-group">
+	<select class="form-control custom-select col-md-6"
+		name="case"
+		id="case_option">
+		<option value="">Case Sensitive</option>
+		<option value="case_insensitive"
+			{% if parsed.case == "case_insensitive" %}selected{% endif %}>
+			Case Insensitive
+		</option>
+	</select>
+</div>
+
+<input type="hidden" name="data" id="data_field">
 <input type="hidden" name="type" value="regex">
 <input type="hidden" name="id" value="{{ id }}">
+
 <hr>
+
 <div class="form-group">
 	<button class="btn btn-success float-right">Update</button>
 </div>
+
+<script>
+document.querySelector("form").addEventListener("submit", function () {
+	const mode = document.getElementById("regex_mode").value;
+	const caseOpt = document.getElementById("case_option").value;
+
+	let data = { mode: mode, case: caseOpt };
+
+	if (mode === "range") {
+		data.min = document.querySelector("[name='range_min']").value;
+		data.max = document.querySelector("[name='range_max']").value;
+	}
+
+	document.getElementById("data_field").value = JSON.stringify(data);
+});
+
+document.getElementById("regex_mode").addEventListener("change", function () {
+	const isRange = this.value === "range";
+
+	document.getElementById("range_inputs")
+		.style.display = isRange ? "block" : "none";
+
+	document.getElementById("regex_input")
+		.style.display = isRange ? "none" : "block";
+});
+</script>
+

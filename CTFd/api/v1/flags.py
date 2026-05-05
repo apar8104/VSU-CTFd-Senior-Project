@@ -98,7 +98,7 @@ class FlagList(Resource):
 
         # We only want to operate on flag types where are have
         # high confidence a leading/trailing space was not intentional
-        if response.data.type in ("static", "regex"):
+        if response.data.type in ("static", "regex", "range"):
             response.data.content = response.data.content.strip()
 
         db.session.add(response.data)
@@ -190,7 +190,7 @@ class Flag(Resource):
 
         # We only want to operate on flag types where are have
         # high confidence a leading/trailing space was not intentional
-        if flag.type in ("static", "regex") and req.get("content"):
+        if flag.type in ("static", "regex", "range") and req.get("content"):
             req["content"] = req["content"].strip()
 
         response = schema.load(req, session=db.session, instance=flag, partial=True)
