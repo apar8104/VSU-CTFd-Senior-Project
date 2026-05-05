@@ -27,13 +27,13 @@ from CTFd.utils.security.email import (
 PROVIDERS = {"smtp": SMTPEmailProvider, "mailgun": MailgunEmailProvider}
 
 
-def sendmail(addr, text, subject="Message from {ctf_name}"):
+def sendmail(addr, text, subject="Message from {ctf_name}", attachment=None):
     subject = safe_format(subject, ctf_name=get_config("ctf_name"))
     provider = get_mail_provider()
     EmailProvider = PROVIDERS.get(provider)
     if EmailProvider is None:
         return False, "No mail settings configured"
-    return EmailProvider.sendmail(addr, text, subject)
+    return EmailProvider.sendmail(addr, text, subject, attachment=attachment)
     
 
 
@@ -127,48 +127,38 @@ def user_created_notification(addr, name, password):
     return sendmail(addr=addr, text=text, subject=subject)
 
 def winner_certificate(addr, name, rank, score):
-    ordinals = {1: "1st", 2: "2nd", 3: "3rd"}
+    from CTFd.plugins.certificate_generator.utils import generate_winner_certificate
+    import os
 
+    ordinals = {1: "1st", 2: "2nd", 3: "3rd"}
+    rank_label = ordinals.get(rank, f"{rank}th")
     ctf_name = get_config("ctf_name")
 
     subject = f"Congratulations from {ctf_name}!"
 
     text = (
         f"Congratulations {name}!\n\n"
-        f"You finished in {ordinals.get(rank, f'{rank}th')} place "
+        f"You finished in {rank_label} place "
         f"with a final score of {score} points in {ctf_name}.\n\n"
-        "Thank you for competing — well done!"
+        "Please find your winner certificate attached. Well done!"
     )
+    try:
+        cert_path = generate_winner_certificate(name, rank)
+    except Exception as e:
+        print(f"[winner_certificate] Failed to generate certificate: {e}", flush=True)
+        cert_path = None
 
-    result = sendmail(addr=addr, text=text, subject=subject)
+    result = sendmail(addr=addr, text=text, subject=subject, attachment=cert_path)
+
+    # Clean up the temp file after sending
+    if cert_path and os.path.isfile(cert_path):
+        try:
+            os.remove(cert_path)
+        except Exception:
+            pass
 
     print("[winner_certificate] SENDMAIL RESULT:", result, flush=True)
-
     return result
-    # print(f"[winner_certificate] called — addr={addr}, name={name}, rank={rank}, score={score}", flush=True)
-    # ordinals = {1: "1st", 2: "2nd", 3: "3rd"}
-    # # text = safe_format(
-    # #     get_config("winner_certificate_body") or DEFAULT_WINNER_CERTIFICATE_BODY,
-    # #     ctf_name=get_config("ctf_name"),
-    # #     name=name,
-    # #     rank=ordinals.get(rank, f"{rank}th"),
-    # #     score=score,
-    # # )
-    # # subject = safe_format(
-    # #     get_config("winner_certificate_subject") or DEFAULT_WINNER_CERTIFICATE_SUBJECT,
-    # #     ctf_name=get_config("ctf_name"),
-    # #     name=name,
-    # # )
-    # subject = "test_certificate"
-    # text = "test"
-    # print("[winner_certificate] about to send email...", flush=True)
-
-    # result = sendmail(addr=addr, text=text, subject=subject)
-
-    # print("[winner_certificate] SENDMAIL RESULT:", result, flush=True)
-
-    # return result
-    # #return sendmail(addr=addr, text=text, subject=subject)
 
 def check_email_is_whitelisted(email_address):
     local_id, _, domain = email_address.partition("@")

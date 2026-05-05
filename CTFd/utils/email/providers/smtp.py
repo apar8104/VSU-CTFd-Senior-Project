@@ -2,6 +2,7 @@ import smtplib
 from email.message import EmailMessage
 from email.utils import formataddr
 from socket import timeout
+import os
 
 from CTFd.utils import get_app_config, get_config
 from CTFd.utils.email.providers import EmailProvider
@@ -9,7 +10,7 @@ from CTFd.utils.email.providers import EmailProvider
 
 class SMTPEmailProvider(EmailProvider):
     @staticmethod
-    def sendmail(addr, text, subject):
+    def sendmail(addr, text, subject, attachment=None):
         ctf_name = get_config("ctf_name")
         mailfrom_addr = get_config("mailfrom_addr") or get_app_config("MAILFROM_ADDR")
         mailfrom_addr = formataddr((ctf_name, mailfrom_addr))
@@ -44,6 +45,12 @@ class SMTPEmailProvider(EmailProvider):
             msg["Subject"] = subject
             msg["From"] = mailfrom_addr
             msg["To"] = addr
+
+            if attachment and os.path.isfile(attachment):
+                with open(attachment, "rb") as f:
+                    file_data = f.read()
+                    file_name = os.path.basename(attachment)
+                msg.add_attachment(file_data, maintype="image", subtype="png", filename=file_name)
 
             # Check whether we are using an admin-defined SMTP server
             custom_smtp = bool(get_config("mail_server"))
