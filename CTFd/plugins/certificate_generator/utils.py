@@ -104,14 +104,14 @@ def generate_winner_certificate(username, rank):
     draw.text((rank_x, rank_y), rank_label, font=rank_font, fill=rank_color)
 
     # --- Username (drawn on the dotted signature line, center of certificate) ---
-    name_font = _load_font(180)
+    name_font = _load_font(100)
 
     name_color = (26, 14, 179, 255)
 
     name_bbox = draw.textbbox((0, 0), username, font=name_font)
     name_w = name_bbox[2] - name_bbox[0]
     name_x = (img_width - name_w) / 2          # horizontally centered
-    name_y = 600
+    name_y = 700
     draw.text((name_x, name_y), username, font=name_font, fill=name_color)
 
     # Save to a flat RGB PNG (no alpha issues for email clients)
